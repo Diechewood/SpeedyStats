@@ -1,10 +1,13 @@
 import os
+from dotenv import load_dotenv
 
-# Placeholder values for database credentials and name
-DB_USERNAME = os.getenv('DB_USERNAME', 'Sk8Admin')  # Replace 'your_username' with actual username
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'SkaterSwag')  # Replace 'your_password' with actual password
-DB_NAME = os.getenv('DB_NAME', 'SpeedTrack')            # Replace 'your_dbname' with actual database name
+# Load environment variables from .env file
+load_dotenv()
 
-DATABASE_URI = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@speedy.cxw5kxiqaz0a.us-east-2.rds.amazonaws.com:5432/{DB_NAME}"
+# Use environment variables for database credentials
+DB_USERNAME = os.getenv('DB_USERNAME')  # No default value, as it should come from .env
+DB_PASSWORD = os.getenv('DB_PASSWORD')  # No default value, as it should come from .env
+DB_NAME = os.getenv('DB_NAME')          # No default value, as it should come from .env
+DB_HOST = os.getenv('DB_HOST', 'localhost')  # Default to localhost if not specified in .env
 
-# Ensure that DB_USERNAME, DB_PASSWORD, and DB_NAME environment variables are set in your environment
+DATABASE_URI = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
