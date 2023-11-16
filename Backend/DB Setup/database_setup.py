@@ -9,8 +9,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def setup_database():
-    engine = create_engine(DATABASE_URI)
-    Base.metadata.create_all(engine)
+    try:
+        engine = create_engine(DATABASE_URI)
+        Base.metadata.create_all(engine)
+        logger.info("Database setup complete.")
+    except SQLAlchemyError as e:
+        logger.error(f"An error occurred during database setup: {e}")
+        raise
+
 
 if __name__ == "__main__":
     setup_database()
