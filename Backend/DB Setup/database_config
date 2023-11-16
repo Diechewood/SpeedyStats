@@ -1,9 +1,9 @@
 import os
 
 # Placeholder values for database credentials and name
-DB_USERNAME = os.getenv('DB_USERNAME', 'your_username')  # Replace 'your_username' with actual username
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'your_password')  # Replace 'your_password' with actual password
-DB_NAME = os.getenv('DB_NAME', 'your_dbname')            # Replace 'your_dbname' with actual database name
+DB_USERNAME = os.getenv('DB_USERNAME', 'Sk8Admin')  # Replace 'your_username' with actual username
+DB_PASSWORD = os.getenv('DB_PASSWORD', 'SkaterSwag')  # Replace 'your_password' with actual password
+DB_NAME = os.getenv('DB_NAME', 'SpeedTrack')            # Replace 'your_dbname' with actual database name
 
 DATABASE_URI = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@speedy.cxw5kxiqaz0a.us-east-2.rds.amazonaws.com:5432/{DB_NAME}"
 
