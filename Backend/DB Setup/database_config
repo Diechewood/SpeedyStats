@@ -4,10 +4,16 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Use environment variables for database credentials
-DB_USERNAME = os.getenv('DB_USERNAME')  # No default value, as it should come from .env
-DB_PASSWORD = os.getenv('DB_PASSWORD')  # No default value, as it should come from .env
-DB_NAME = os.getenv('DB_NAME')          # No default value, as it should come from .env
-DB_HOST = os.getenv('DB_HOST', 'localhost')  # Default to localhost if not specified in .env
+DB_USERNAME = os.getenv('DB_USERNAME')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_NAME = os.getenv('DB_NAME')
+DB_HOST = os.getenv('DB_HOST')
+
+# Validation of connection string components
+def validate_db_uri_components():
+    if not DB_USERNAME or not DB_PASSWORD or not DB_NAME or not DB_HOST:
+        raise ValueError("Database configuration is incomplete. Check your .env file.")
+
+validate_db_uri_components()
 
 DATABASE_URI = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
