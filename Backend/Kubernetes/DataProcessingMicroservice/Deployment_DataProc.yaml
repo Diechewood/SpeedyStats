@@ -1,1 +1,51 @@
+# Deployment_DataProc.yaml
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-processing-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: data-processing
+  template:
+    metadata:
+      labels:
+        app: data-processing
+    spec:
+      containers:
+      - name: data-processing
+        image: data-processing-image:latest
+        ports:
+        - containerPort: 5002
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        securityContext:
+          runAsUser: 1000
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - mountPath: "/app/data"
+          name: data-processing-volume
+ #       livenessProbe:
+ #         httpGet:
+ #           path: /healthz
+ #           port: 5002
+ #         initialDelaySeconds: 10
+ #         periodSeconds: 5
+ #       readinessProbe:
+ #         httpGet:
+ #           path: /readiness
+ #           port: 5002
+ #         initialDelaySeconds: 5
+ #         periodSeconds: 5
+      volumes:
+      - name: data-processing-volume
+        persistentVolumeClaim:
+          claimName: data-processing-pvc
