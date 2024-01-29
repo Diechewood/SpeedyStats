@@ -1,24 +1,18 @@
-# SpeedDataCollectionController.py
+# DataProcessingController.py
 from aiohttp import web
-from Services.SpeedDataManagerService import SpeedDataManagerService
+from Services.DataProcessingService import DataProcessingService
 import asyncio
 import json
-import datetime
 
-data_manager = SpeedDataManagerService()
+processing_service = DataProcessingService()
 
-async def record_speed(request):
-    data = await request.json()
-    user_id = data.get('user_id')
-    speed = data.get('speed')
-    timestamp = datetime.datetime.now()
-    location = data.get('location')
-
-    await asyncio.create_task(data_manager.record_speed_data(user_id, speed, timestamp, location))
-    return web.Response(text=json.dumps({"message": "Speed data recorded successfully"}), status=200)
+async def process_data(request):
+    user_id = request.match_info.get('user_id')
+    await asyncio.create_task(processing_service.process_user_data(user_id))
+    return web.Response(text=json.dumps({"message": "Data processing completed successfully"}), status=200)
 
 app = web.Application()
-app.router.add_post('/record_speed', record_speed)
+app.router.add_get('/process_data/{user_id}', process_data)
 
 if __name__ == '__main__':
     web.run_app(app)
