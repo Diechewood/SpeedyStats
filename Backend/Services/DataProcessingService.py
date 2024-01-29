@@ -1,32 +1,35 @@
 # DataProcessingService.py
-from pymongo import MongoClient
-from DatabaseConfig import MongoDBConfig
+import asyncpg
+from DatabaseConfig import PostgreSQLConfig
 import statistics
 
 class DataProcessingService:
-    def __init__(self):
-        self.client = MongoClient(f"mongodb://{MongoDBConfig.USER}:{MongoDBConfig.PASSWORD}@{MongoDBConfig.HOST}:{MongoDBConfig.PORT}")
-        self.db = self.client[MongoDBConfig.DATABASE]
-        self.raw_data_collection = self.db['raw_speed_data']
-        self.processed_data_collection = self.db['processed_speed_data']
+    async def connect(self):
+        self.connection = await asyncpg.connect(
+            user=PostgreSQLConfig.USER,
+            password=PostgreSQLConfig.PASSWORD,
+            database=PostgreSQLConfig.DATABASE,
+            host=PostgreSQLConfig.HOST
+        )
 
-    def process_user_data(self, user_id):
+    async def process_user_data(self, user_id):
         try:
-            user_data = list(self.raw_data_collection.find({"user_id": user_id}))
-            speeds = [data['speed'] for data in user_data]
-            average_speed = statistics.mean(speeds)
-            max_speed = max(speeds)
+            # Connect to the database
+            await self.connect()
 
-            self.processed_data_collection.insert_one({
-                "user_id": user_id,
-                "average_speed": average_speed,
-                "max_speed": max_speed
-            })
+            # Fetch raw speed data for the user
+            raw_data = await self.connection.fetch("SELECT speed FROM speed_data WHERE user_id = $1", user_id)
+            speeds = [data['speed'] for data in raw_data]
+            
+            # Calculate metrics
+            average_speed = statistics.mean(speeds) if speeds else 0
+            max_speed = max(speeds) if speeds else 0
+
+            # Processed data logic here
+
             return True
         except Exception as e:
             print(f"Error processing data: {e}")
             return False
-
-    def __del__(self):
-        self.client.close()
-
+        finally:
+            await self.connection.close()
