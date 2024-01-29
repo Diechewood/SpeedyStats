@@ -22,4 +22,3 @@ app.router.add_post('/record_speed', record_speed)
 
 if __name__ == '__main__':
     web.run_app(app)
-
