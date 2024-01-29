@@ -1,48 +1,40 @@
-# APIGateway/APIGatewaySetup.py
-from flask import Flask, request, jsonify, redirect
-import requests
-from Utilities.ErrorHandling import AppError, handle_error
+# Utilities/ErrorHandling.py
+import logging
+from flask import jsonify
 
-app = Flask(__name__)
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
 
-# Define URLs for microservices
-USER_AUTH_SERVICE_URL = 'http://user-auth-service/'
-SPEED_DATA_SERVICE_URL = 'http://speed-data-service/'
-DATA_PROCESSING_SERVICE_URL = 'http://data-processing-service/'
+class AppError(Exception):
+    """ Custom application error class. """
+    def __init__(self, message, status_code=400):
+        super().__init__(message)
+        self.message = message
+        self.status_code = status_code
 
-@app.route('/auth/<action>', methods=['POST', 'GET'])
-def user_auth(action):
-    service_url = USER_AUTH_SERVICE_URL + action
-    return proxy_request(service_url)
+def handle_error(error):
+    """ Handler for AppError. """
+    logger.error(f"AppError: {error.message}")
+    response = {'error': error.message}
+    return jsonify(response), error.status_code
 
-@app.route('/speeddata/<action>', methods=['POST', 'GET'])
-def speed_data(action):
-    service_url = SPEED_DATA_SERVICE_URL + action
-    return proxy_request(service_url)
+def handle_generic_error(error):
+    """ Generic error handler for unexpected errors. """
+    logger.error(f"Unexpected Error: {error}", exc_info=True)
+    response = {'error': 'An unexpected error occurred'}
+    return jsonify(response), 500
 
-@app.route('/dataprocessing/<action>', methods=['POST', 'GET'])
-def data_processing(action):
-    service_url = DATA_PROCESSING_SERVICE_URL + action
-    return proxy_request(service_url)
+def handle_database_error(error):
+    """ Handler for database-related errors. """
+    logger.error(f"Database Error: {error}", exc_info=True)
+    response = {'error': 'Database operation failed'}
+    return jsonify(response), 500
 
-def proxy_request(service_url):
-    try:
-        if request.method == 'POST':
-            response = requests.post(service_url, json=request.json)
-        else:
-            response = requests.get(service_url)
-        
-        # Check if the response from microservice is successful
-        response.raise_for_status()
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.HTTPError as http_err:
-        # Handle HTTP errors from microservices
-        return jsonify({'error': 'Microservice error', 'details': str(http_err)}), 500
-    except requests.exceptions.RequestException as err:
-        # Handle other requests errors
-        return jsonify({'error': 'Network error', 'details': str(err)}), 500
+def handle_gps_data_error(error):
+    """ Handler for errors related to GPS data processing. """
+    logger.error(f"GPS Data Error: {error}", exc_info=True)
+    response = {'error': 'GPS data processing error'}
+    return jsonify(response), 400
 
-app.register_error_handler(AppError, handle_error)
-
-if __name__ == '__main__':
-    app.run(port=8080, debug=True)
+# Additional specific error handlers can be added here
