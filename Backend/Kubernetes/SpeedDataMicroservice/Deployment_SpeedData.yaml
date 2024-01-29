@@ -1,1 +1,52 @@
+# Deployment_SpeedData.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speed-data-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: speed-data
+  template:
+    metadata:
+      labels:
+        app: speed-data
+    spec:
+      containers:
+      - name: speed-data
+        image: speed-data-image:latest
+        ports:
+        - containerPort: 5001
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        securityContext:
+          runAsUser: 1000
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - mountPath: "/app/data"
+          name: speed-data-volume
+#        livenessProbe:
+#          httpGet:
+#            path: /healthz
+#            port: 5001
+#          initialDelaySeconds: 10
+#          periodSeconds: 5
+#        readinessProbe:
+#          httpGet:
+#            path: /readiness
+#            port: 5001
+#          initialDelaySeconds: 5
+#          periodSeconds: 5
+      volumes:
+      - name: speed-data-volume
+        persistentVolumeClaim:
+          claimName: speed-data-pvc
 
