@@ -1,1 +1,14 @@
+# Service_UserAuth.yaml
 
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-auth-service
+spec:
+  selector:
+    app: user-auth
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: ClusterIP
